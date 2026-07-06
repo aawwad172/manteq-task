@@ -12,11 +12,11 @@ install-dotnet-ef:
 
 # Run the API project
 run:
-	dotnet run --project src/Dotnet.Template.Presentation.API
+	dotnet run --project src/ManteqTask.Presentation.API
 
 # Run the API project
 watch:
-	dotnet watch --project src/Dotnet.Template.Presentation.API
+	dotnet watch --project src/ManteqTask.Presentation.API
 
 # Build the solution
 build:
@@ -32,7 +32,7 @@ clean:
 
 # Create and apply database migrations (for EF Core)
 migrate:
-	dotnet ef migrations add $(name) --project src/Dotnet.Template.Infrastructure --startup-project src/Dotnet.Template.Presentation.API
+	dotnet ef migrations add $(name) --project src/ManteqTask.Infrastructure --startup-project src/ManteqTask.Presentation.API
 
 database-update:
-	dotnet ef database update --project src/Dotnet.Template.Infrastructure --startup-project src/Dotnet.Template.Presentation.API
+	dotnet ef database update --project src/ManteqTask.Infrastructure --startup-project src/ManteqTask.Presentation.API
