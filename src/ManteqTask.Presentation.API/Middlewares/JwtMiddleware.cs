@@ -1,11 +1,8 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
-using ManteqTask.Application.Services;
-using ManteqTask.Domain.Exceptions;
 using ManteqTask.Domain.Interfaces.Application.Services;
-
-using Microsoft.IdentityModel.Tokens;
+using ManteqTask.Domain.Results;
 
 namespace ManteqTask.Presentation.API.Middlewares;
 
@@ -43,9 +40,11 @@ public class JwtMiddleware(
 
         try
         {
-            ClaimsPrincipal? principal = await _jwtService.ValidateToken(token!);
-            if (principal is not null)
+            Result<ClaimsPrincipal> result = await _jwtService.ValidateToken(token!);
+
+            if (result.IsSuccess)
             {
+                ClaimsPrincipal principal = result.Value;
                 context.User = principal;
 
 
@@ -63,12 +62,9 @@ public class JwtMiddleware(
                     currentUser.UserId = Guid.Parse(userId);
                 }
             }
-        }
-        catch (UnauthenticatedException ex)
-        {
-            // Token is expired but we can still extract claims for refresh flow
-            if (ex.Message.Contains("Invalid token") || ex.InnerException is SecurityTokenExpiredException)
+            else if (result.Error.Code == "INVALID_TOKEN")
             {
+                // Token is expired/invalid but we can still extract claims for refresh flow
                 try
                 {
                     // Read token without validation to extract claims
@@ -93,7 +89,7 @@ public class JwtMiddleware(
             }
             else
             {
-                _logger.LogWarning(ex, "Authentication failed");
+                _logger.LogWarning("Authentication failed: {Error}", result.Error.Message);
             }
         }
         catch (Exception ex)

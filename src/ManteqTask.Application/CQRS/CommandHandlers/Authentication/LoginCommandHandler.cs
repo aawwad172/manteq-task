@@ -1,9 +1,9 @@
 using ManteqTask.Application.CQRS.Commands.Authentication;
 using ManteqTask.Domain.Entities;
 using ManteqTask.Domain.Entities.Authentication;
-using ManteqTask.Domain.Exceptions;
 using ManteqTask.Domain.Interfaces.Application.Services;
 using ManteqTask.Domain.Interfaces.Infrastructure.IRepositories;
+using ManteqTask.Domain.Results;
 
 using Microsoft.Extensions.Logging;
 
@@ -16,35 +16,36 @@ public class LoginCommandHandler(
     IUserRepository userRepository,
     ISecurityService securityService,
     IRefreshTokenRepository refreshTokenRepository,
-    IJwtService jwtService) : BaseHandler<LoginCommand, LoginCommandResult>(currentUserService, logger, unitOfWork)
+    IJwtService jwtService) : BaseHandler<LoginCommand, Result<LoginCommandResult>>(currentUserService, logger, unitOfWork)
 {
     private readonly IUserRepository _userRepository = userRepository;
     private readonly ISecurityService _securityService = securityService;
     private readonly IRefreshTokenRepository _refreshTokenRepository = refreshTokenRepository;
     private readonly IJwtService _jwtService = jwtService;
 
-    public override async Task<LoginCommandResult> Handle(LoginCommand request, CancellationToken cancellationToken)
+    public override async Task<Result<LoginCommandResult>> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
+        // Expected, read-only validations run before any transaction is opened.
+        User? user = await _userRepository.GetUserByEmailAsync(request.Email);
+        if (user is null)
+            return Error.Unauthenticated("Invalid email or password.");
+
+        if (user.IsActive is false)
+            return Error.NotActiveUser($"User {user.Id} is not active");
+
+        if (user.IsDeleted is true)
+            return Error.DeletedUser($"User {user.Id} is deleted");
+
+        if (!_securityService.VerifySecret(
+                    secret: request.Password,
+                    secretHash: user.PasswordHash
+                )
+            )
+            return Error.Unauthenticated("Invalid email or password");
+
         await _unitOfWork.BeginTransactionAsync();
         try
         {
-            User? user = await _userRepository.GetUserByEmailAsync(request.Email);
-            if (user is null)
-                throw new UnauthenticatedException("Invalid email or password.");
-
-            if (user.IsActive is false)
-                throw new NotActiveUserException($"User {user.Id} is not active");
-
-            if (user.IsDeleted is true)
-                throw new DeletedUserException($"User {user.Id} is deleted");
-
-            if (!_securityService.VerifySecret(
-                        secret: request.Password,
-                        secretHash: user.PasswordHash
-                    )
-                )
-                throw new UnauthenticatedException("Invalid email or password");
-
             // All tokens for this session belong to one family ID
             Guid tokenFamilyId = Guid.NewGuid();
 
@@ -61,17 +62,12 @@ public class LoginCommandHandler(
 
             return new LoginCommandResult(AccessToken: accessToken, RefreshToken: refreshToken.PlaintextToken);
         }
-        catch (UnauthenticatedException)
-        {
-            await _unitOfWork.RollbackAsync();
-            throw;
-        }
         catch (Exception ex)
         {
+            // Unexpected failure while persisting the session: roll back and let it surface as a 500.
             _logger.LogError(ex, "An error occurred during login.");
             await _unitOfWork.RollbackAsync();
-            // Preserve generic message but use the domain exception type used elsewhere.
-            throw new UnauthenticatedException("Invalid email or password.");
+            throw;
         }
     }
 }

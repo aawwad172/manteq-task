@@ -14,14 +14,12 @@ public class ExceptionHandlerMiddleware(RequestDelegate next, ILogger<ExceptionH
 
     public async Task InvokeAsync(HttpContext context)
     {
+        // NOTE: Expected/business errors (not found, conflict, auth, validation, ...) are now
+        // returned as domain Results and mapped to HTTP by ResultExtensions. This middleware only
+        // handles infrastructure/programmer errors that are genuinely exceptional.
         try
         {
             await _next(context);
-        }
-        catch (NotFoundException ex)
-        {
-            _logger.LogWarning("NotFoundException occurred: {Message}", ex.Message);
-            await HandleExceptionAsync(context, "NOT_FOUND", ex.Message, StatusCodes.Status404NotFound);
         }
         catch (EnvironmentVariableNotSetException ex)
         {
@@ -32,40 +30,6 @@ public class ExceptionHandlerMiddleware(RequestDelegate next, ILogger<ExceptionH
         {
             _logger.LogError("ValidationException occurred: {Message}", ex.Message);
             await HandleExceptionAsync(context, "VALIDATION_ERROR", ex.Message, StatusCodes.Status400BadRequest);
-        }
-        catch (UnauthenticatedException ex)
-        {
-            _logger.LogError("UnauthenticatedException occurred: {Message}", ex.Message);
-            await HandleExceptionAsync(context, "UNAUTHENTICATED", ex.Message, StatusCodes.Status401Unauthorized);
-        }
-        catch (UnauthorizedException ex)
-        {
-            _logger.LogError("UnauthorizedException occurred: {Message}", ex.Message);
-            await HandleExceptionAsync(context, "UNAUTHORIZED", ex.Message, StatusCodes.Status403Forbidden);
-        }
-        catch (NotActiveUserException ex)
-        {
-            _logger.LogWarning("NotActiveUserException occurred: {Message}", ex.Message);
-            await HandleExceptionAsync(context, "NOT_ACTIVE_USER", ex.Message, StatusCodes.Status403Forbidden);
-        }
-        catch (DeletedUserException ex)
-        {
-            _logger.LogWarning("DeletedUserException occurred: {Message}", ex.Message);
-            await HandleExceptionAsync(context, "DELETED_USER", ex.Message, StatusCodes.Status403Forbidden);
-        }
-        catch (ConflictException ex)
-        {
-            _logger.LogWarning("ConflictException occurred: {Message}", ex.Message);
-            await HandleExceptionAsync(context, "CONFLICT", ex.Message, StatusCodes.Status409Conflict);
-        }
-        catch (CustomValidationException ex)
-        {
-            _logger.LogWarning("CustomValidationException occurred: {Message}", ex.Message);
-            await HandleExceptionAsync(
-                context,
-                "VALIDATION_ERROR",
-                JoinErrors(ex.Errors),
-                StatusCodes.Status400BadRequest);
         }
         catch (Exception ex)
         {
@@ -82,10 +46,5 @@ public class ExceptionHandlerMiddleware(RequestDelegate next, ILogger<ExceptionH
         ApiResponse<string> response = ApiResponse<string>.ErrorResponse(message, errorCode, statusCode);
         string result = JsonSerializer.Serialize(response);
         await context.Response.WriteAsync(result);
-    }
-
-    private string JoinErrors(IEnumerable<string> errors)
-    {
-        return string.Join(", ", errors);
     }
 }

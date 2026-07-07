@@ -1,7 +1,8 @@
 using FluentValidation;
 using FluentValidation.Results;
 using ManteqTask.Application.CQRS.Commands.Authentication;
-using ManteqTask.Domain.Exceptions;
+using ManteqTask.Domain.Results;
+using ManteqTask.Presentation.API.Extensions;
 using ManteqTask.Presentation.API.Interfaces;
 using ManteqTask.Presentation.API.Models;
 using MediatR;
@@ -23,12 +24,11 @@ public class Logout : ICommandRoute<LogoutCommand>
                     .Select(e => e.ErrorMessage)
                     .ToList();
 
-            // Throw a custom ValidationException that your middleware will catch
-            throw new CustomValidationException("Validation failed", errors);
+            return Error.Validation(errors).ToErrorResult();
         }
 
-        LogoutCommandResult response = await mediator.Send(command);
-
-        return Results.Ok(ApiResponse<LogoutCommandResult>.SuccessResponse(response));
+        Result<LogoutCommandResult> result = await mediator.Send(command);
+        return result.ToApiResult(data =>
+            Results.Ok(ApiResponse<LogoutCommandResult>.SuccessResponse(data)));
     }
 }

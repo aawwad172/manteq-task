@@ -5,9 +5,9 @@ using System.Text;
 using ManteqTask.Application.Utilities;
 using ManteqTask.Domain.Entities;
 using ManteqTask.Domain.Entities.Authentication;
-using ManteqTask.Domain.Exceptions;
 using ManteqTask.Domain.Interfaces.Application.Services;
 using ManteqTask.Domain.Interfaces.Infrastructure.IRepositories;
+using ManteqTask.Domain.Results;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -110,12 +110,12 @@ public class JwtService(
         return refreshToken;
     }
 
-    public async Task<ClaimsPrincipal> ValidateToken(string token)
+    public async Task<Result<ClaimsPrincipal>> ValidateToken(string token)
     {
-        JsonWebTokenHandler? tokenHandler = new();
+        JsonWebTokenHandler tokenHandler = new();
         byte[] keyBytes = GetKeyBytes();
 
-        TokenValidationParameters? validationParameters = new()
+        TokenValidationParameters validationParameters = new()
         {
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(keyBytes),
@@ -129,10 +129,10 @@ public class JwtService(
 
         TokenValidationResult result = await tokenHandler.ValidateTokenAsync(token, validationParameters);
 
+        // Signature/lifetime validation failed (includes expired tokens). The "INVALID_TOKEN"
+        // code lets the JWT middleware still extract claims for the refresh flow.
         if (!result.IsValid)
-        {
-            throw new UnauthenticatedException("Invalid token");
-        }
+            return Error.Unauthenticated("Invalid token", "INVALID_TOKEN");
 
         ClaimsPrincipal principal = new(result.ClaimsIdentity);
 
@@ -141,25 +141,23 @@ public class JwtService(
         string? tokenSecurityStamp = principal.FindFirst("security_stamp")?.Value;
 
         if (string.IsNullOrEmpty(userIdClaim) || string.IsNullOrEmpty(tokenSecurityStamp))
-        {
             // Token is missing necessary claims, treat as invalid
-            throw new UnauthenticatedException("Token is missing required security claims.");
-        }
+            return Error.Unauthenticated("Token is missing required security claims.", "MISSING_CLAIMS");
 
         if (!Guid.TryParse(userIdClaim, out Guid userId))
-            throw new UnauthenticatedException("Token contains invalid user identifier.");
+            return Error.Unauthenticated("Token contains invalid user identifier.", "INVALID_USER_ID");
 
         // 2. Fetch the current user stamp from the database (via a service)
         // NOTE: You will need to implement GetCurrentSecurityStampAsync in your service.
         User? user = await _userRepository.GetByIdAsync(userId);
 
         if (user is null)
-            throw new UnauthenticatedException("Token required security claims is Invalid");
+            return Error.Unauthenticated("Token required security claims is Invalid", "USER_NOT_FOUND");
 
         // 3. Compare the stamps
         if (tokenSecurityStamp != user.SecurityStamp)
             // The stamp was changed (e.g., due to logout or password change)
-            throw new UnauthenticatedException("Session revoked. Please log in again.");
+            return Error.Unauthenticated("Session revoked. Please log in again.", "SESSION_REVOKED");
 
         // --- END NEW SECURITY STAMP VALIDATION LOGIC ---
 

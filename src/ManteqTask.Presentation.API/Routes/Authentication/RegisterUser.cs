@@ -1,7 +1,8 @@
 using FluentValidation;
 using FluentValidation.Results;
 using ManteqTask.Application.CQRS.Commands.Authentication;
-using ManteqTask.Domain.Exceptions;
+using ManteqTask.Domain.Results;
+using ManteqTask.Presentation.API.Extensions;
 using ManteqTask.Presentation.API.Interfaces;
 using ManteqTask.Presentation.API.Models;
 using MediatR;
@@ -23,13 +24,13 @@ public class RegisterUser : ICommandRoute<RegisterUserCommand>
                     .Select(e => e.ErrorMessage)
                     .ToList();
 
-            // Throw a custom ValidationException that your middleware will catch
-            throw new CustomValidationException("Validation failed", errors);
+            return Error.Validation(errors).ToErrorResult();
         }
 
-        RegisterUserCommandResult response = await mediator.Send(command);
-        return Results.Created(
-            $"/users/{response.Id}",
-            ApiResponse<RegisterUserCommandResult>.SuccessResponse(response));
+        Result<RegisterUserCommandResult> result = await mediator.Send(command);
+        return result.ToApiResult(data =>
+            Results.Created(
+                $"/users/{data.Id}",
+                ApiResponse<RegisterUserCommandResult>.SuccessResponse(data)));
     }
 }

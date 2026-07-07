@@ -1,3 +1,5 @@
+using ManteqTask.Domain.Results;
+
 using MediatR;
 
 namespace ManteqTask.Application.CQRS.Commands.Authentication;
@@ -7,7 +9,7 @@ public record RegisterUserCommand(
     string LastName,
     string Email,
     string Username,
-    string Password) : IRequest<RegisterUserCommandResult>;
+    string Password) : IRequest<Result<RegisterUserCommandResult>>;
 
 public record RegisterUserCommandResult(
     Guid Id,

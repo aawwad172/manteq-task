@@ -1,11 +1,9 @@
-
-
 using ManteqTask.Application.CQRS.Commands.Authentication;
 using ManteqTask.Domain.Entities;
 using ManteqTask.Domain.Entities.Authentication;
-using ManteqTask.Domain.Exceptions;
 using ManteqTask.Domain.Interfaces.Application.Services;
 using ManteqTask.Domain.Interfaces.Infrastructure.IRepositories;
+using ManteqTask.Domain.Results;
 
 using Microsoft.Extensions.Logging;
 
@@ -18,7 +16,7 @@ public class RegisterUserCommandHandler(
     IUserRepository userRepository,
     ISecurityService securityService,
     IRoleRepository roleRepository,
-    IUnitOfWork unitOfWork) : BaseHandler<RegisterUserCommand, RegisterUserCommandResult>(currentUserService, logger, unitOfWork)
+    IUnitOfWork unitOfWork) : BaseHandler<RegisterUserCommand, Result<RegisterUserCommandResult>>(currentUserService, logger, unitOfWork)
 {
     private readonly IAuthenticationRepository _authenticationRepository = authenticationRepository;
     private readonly IUserRepository _userRepository = userRepository;
@@ -26,17 +24,17 @@ public class RegisterUserCommandHandler(
     private readonly IRoleRepository _roleRepository = roleRepository;
     private readonly string _defaultRoleName = "User";
 
-    public override async Task<RegisterUserCommandResult> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
+    public override async Task<Result<RegisterUserCommandResult>> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
     {
         // Check if a user already exists with the same email.
         User? existingUser = await _userRepository.GetUserByEmailAsync(request.Email);
         if (existingUser is not null)
-            throw new ConflictException("A user with this email already exists.");
+            return Error.Conflict("A user with this email already exists.");
 
         // Check if a user already exists with the same username.
         User? existingUsername = await _userRepository.GetUserByUsernameAsync(request.Username);
         if (existingUsername is not null)
-            throw new ConflictException("A user with this username already exists.");
+            return Error.Conflict("A user with this username already exists.");
 
         // 1. Hash the password (returns combined HASH-SALT string)
         string hashedPassword = _securityService.HashSecret(request.Password);
@@ -51,6 +49,7 @@ public class RegisterUserCommandHandler(
         if (defaultRole is null)
         {
             // IMPORTANT: This prevents users from being created without a role if the DB isn't seeded.
+            // A missing seed is a misconfiguration (not an expected user error), so it stays an exception.
             throw new InvalidOperationException($"The default role '{_defaultRoleName}' does not exist in the database. Please seed roles.");
         }
 

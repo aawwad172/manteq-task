@@ -2,6 +2,7 @@ using System.Security.Claims;
 
 using ManteqTask.Domain.Entities;
 using ManteqTask.Domain.Entities.Authentication;
+using ManteqTask.Domain.Results;
 
 namespace ManteqTask.Domain.Interfaces.Application.Services;
 
@@ -11,5 +12,5 @@ public interface IJwtService
     RefreshToken CreateRefreshTokenEntity(
         User user,
         Guid tokenFamilyId);
-    Task<ClaimsPrincipal> ValidateToken(string token);
+    Task<Result<ClaimsPrincipal>> ValidateToken(string token);
 }

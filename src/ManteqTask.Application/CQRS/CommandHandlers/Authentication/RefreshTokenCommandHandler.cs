@@ -1,10 +1,9 @@
-
 using ManteqTask.Application.CQRS.Commands.Authentication;
 using ManteqTask.Domain.Entities;
 using ManteqTask.Domain.Entities.Authentication;
-using ManteqTask.Domain.Exceptions;
 using ManteqTask.Domain.Interfaces.Application.Services;
 using ManteqTask.Domain.Interfaces.Infrastructure.IRepositories;
+using ManteqTask.Domain.Results;
 
 using Microsoft.Extensions.Logging;
 
@@ -17,26 +16,26 @@ public class RefreshTokenCommandHandler(
     IRefreshTokenRepository refreshTokenRepository,
     IUserRepository userRepository,
     IJwtService jwtService)
-    : BaseHandler<RefreshTokenCommand, RefreshTokenCommandResult>(currentUserService, logger, unitOfWork)
+    : BaseHandler<RefreshTokenCommand, Result<RefreshTokenCommandResult>>(currentUserService, logger, unitOfWork)
 {
     private readonly IRefreshTokenRepository _refreshTokenRepository = refreshTokenRepository;
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IJwtService _jwtService = jwtService;
 
-    public override async Task<RefreshTokenCommandResult> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
+    public override async Task<Result<RefreshTokenCommandResult>> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
     {
         RefreshToken? oldToken = await _refreshTokenRepository.GetByTokenAsync(request.RefreshToken, _currentUser.UserId);
 
         if (oldToken is null || !oldToken.IsActive)
-            throw new UnauthenticatedException("Invalid or expired refresh token.");
+            return Error.Unauthenticated("Invalid or expired refresh token.");
 
 
         User? user = await _userRepository.GetByIdAsync(oldToken.UserId);
         if (user is null)
-            throw new NotFoundException("User not found");
+            return Error.NotFound("User not found");
 
         if (oldToken.SecurityStampAtIssue != user.SecurityStamp)
-            throw new UnauthenticatedException("Session security has been compromised. Please log in again.");
+            return Error.Unauthenticated("Session security has been compromised. Please log in again.");
 
         await _unitOfWork.BeginTransactionAsync();
         try
