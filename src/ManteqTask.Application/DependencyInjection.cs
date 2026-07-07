@@ -1,4 +1,4 @@
-﻿using ManteqTask.Application.CQRS.CommandHandlers.Authentication;
+﻿using ManteqTask.Application.CQRS.Commands.Authentication;
 using ManteqTask.Application.Services;
 using ManteqTask.Domain.Interfaces.Application.Services;
 
