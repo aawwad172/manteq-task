@@ -20,6 +20,7 @@ public class User : IBaseEntity
     public required string SecurityStamp { get; set; }
     public ICollection<RefreshToken> RefreshTokens { get; set; } = [];
     public ICollection<UserRole> UserRoles { get; set; } = [];
-    public required bool IsDeleted { get; set; } = false;
+    public DateTime? DeletedAt { get; set; }
+    public Guid? DeletedBy { get; set; }
     public required bool IsVerified { get; set; } = false;
 }

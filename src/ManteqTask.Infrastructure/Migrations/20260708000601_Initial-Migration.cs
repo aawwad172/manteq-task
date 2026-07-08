@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -23,7 +24,8 @@ namespace ManteqTask.Infrastructure.Migrations
                     CreatedBy = table.Column<Guid>(type: "uuid", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "uuid", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false)
+                    DeletedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    DeletedBy = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -41,7 +43,8 @@ namespace ManteqTask.Infrastructure.Migrations
                     CreatedBy = table.Column<Guid>(type: "uuid", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "uuid", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false)
+                    DeletedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    DeletedBy = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -64,7 +67,8 @@ namespace ManteqTask.Infrastructure.Migrations
                     UpdatedBy = table.Column<Guid>(type: "uuid", nullable: true),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
                     SecurityStamp = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
-                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    DeletedBy = table.Column<Guid>(type: "uuid", nullable: true),
                     IsVerified = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
@@ -154,30 +158,37 @@ namespace ManteqTask.Infrastructure.Migrations
 
             migrationBuilder.InsertData(
                 table: "Permissions",
-                columns: new[] { "Id", "CreatedAt", "CreatedBy", "Description", "IsDeleted", "Name", "UpdatedAt", "UpdatedBy" },
+                columns: new[] { "Id", "CreatedAt", "CreatedBy", "DeletedAt", "DeletedBy", "Description", "Name", "UpdatedAt", "UpdatedBy" },
                 values: new object[,]
                 {
-                    { new Guid("55555555-5555-7555-8555-555555555555"), new DateTime(2025, 10, 15, 0, 0, 0, 0, DateTimeKind.Utc), new Guid("a0000000-0000-7000-8000-000000000000"), "some description", false, "User.Read", null, null },
-                    { new Guid("66666666-6666-7666-8666-666666666666"), new DateTime(2025, 10, 15, 0, 0, 0, 0, DateTimeKind.Utc), new Guid("a0000000-0000-7000-8000-000000000000"), null, false, "Post.Approve", null, null }
+                    { new Guid("88888888-8888-7888-8888-888888888888"), new DateTime(2025, 10, 15, 0, 0, 0, 0, DateTimeKind.Utc), new Guid("a0000000-0000-7000-8000-000000000000"), null, null, "Create a Draft request", "requests.create", null, null },
+                    { new Guid("99999999-9999-7999-8999-999999999999"), new DateTime(2025, 10, 15, 0, 0, 0, 0, DateTimeKind.Utc), new Guid("a0000000-0000-7000-8000-000000000000"), null, null, "Edit a Draft request", "requests.edit", null, null },
+                    { new Guid("aaaaaaaa-aaaa-7aaa-8aaa-aaaaaaaaaaaa"), new DateTime(2025, 10, 15, 0, 0, 0, 0, DateTimeKind.Utc), new Guid("a0000000-0000-7000-8000-000000000000"), null, null, "Submit a Draft for review", "requests.submit", null, null },
+                    { new Guid("bbbbbbbb-bbbb-7bbb-8bbb-bbbbbbbbbbbb"), new DateTime(2025, 10, 15, 0, 0, 0, 0, DateTimeKind.Utc), new Guid("a0000000-0000-7000-8000-000000000000"), null, null, "View only the user's own requests", "requests.view.own", null, null },
+                    { new Guid("cccccccc-cccc-7ccc-8ccc-cccccccccccc"), new DateTime(2025, 10, 15, 0, 0, 0, 0, DateTimeKind.Utc), new Guid("a0000000-0000-7000-8000-000000000000"), null, null, "View all requests (with status/date filters)", "requests.view.all", null, null },
+                    { new Guid("dddddddd-dddd-7ddd-8ddd-dddddddddddd"), new DateTime(2025, 10, 15, 0, 0, 0, 0, DateTimeKind.Utc), new Guid("a0000000-0000-7000-8000-000000000000"), null, null, "Approve a Submitted request", "requests.approve", null, null },
+                    { new Guid("eeeeeeee-eeee-7eee-8eee-eeeeeeeeeeee"), new DateTime(2025, 10, 15, 0, 0, 0, 0, DateTimeKind.Utc), new Guid("a0000000-0000-7000-8000-000000000000"), null, null, "Reject a Submitted request (reason required)", "requests.reject", null, null },
+                    { new Guid("ffffffff-ffff-7fff-8fff-ffffffffffff"), new DateTime(2025, 10, 15, 0, 0, 0, 0, DateTimeKind.Utc), new Guid("a0000000-0000-7000-8000-000000000000"), null, null, "View the status-change audit trail", "audit.view", null, null }
                 });
 
             migrationBuilder.InsertData(
                 table: "Roles",
-                columns: new[] { "Id", "CreatedAt", "CreatedBy", "Description", "IsDeleted", "Name", "UpdatedAt", "UpdatedBy" },
+                columns: new[] { "Id", "CreatedAt", "CreatedBy", "DeletedAt", "DeletedBy", "Description", "Name", "UpdatedAt", "UpdatedBy" },
                 values: new object[,]
                 {
-                    { new Guid("22222222-2222-7222-8222-222222222222"), new DateTime(2025, 10, 15, 0, 0, 0, 0, DateTimeKind.Utc), new Guid("a0000000-0000-7000-8000-000000000000"), "Full unrestricted access.", false, "SuperAdmin", null, null },
-                    { new Guid("33333333-3333-7333-8333-333333333333"), new DateTime(2025, 10, 15, 0, 0, 0, 0, DateTimeKind.Utc), new Guid("a0000000-0000-7000-8000-000000000000"), "General administrative access.", false, "Admin", null, null },
-                    { new Guid("44444444-4444-7444-8444-444444444444"), new DateTime(2025, 10, 15, 0, 0, 0, 0, DateTimeKind.Utc), new Guid("a0000000-0000-7000-8000-000000000000"), "Standard registered user access.", false, "User", null, null }
+                    { new Guid("22222222-2222-7222-8222-222222222222"), new DateTime(2025, 10, 15, 0, 0, 0, 0, DateTimeKind.Utc), new Guid("a0000000-0000-7000-8000-000000000000"), null, null, "Full unrestricted access.", "SuperAdmin", null, null },
+                    { new Guid("33333333-3333-7333-8333-333333333333"), new DateTime(2025, 10, 15, 0, 0, 0, 0, DateTimeKind.Utc), new Guid("a0000000-0000-7000-8000-000000000000"), null, null, "General administrative access.", "Admin", null, null },
+                    { new Guid("44444444-4444-7444-8444-444444444444"), new DateTime(2025, 10, 15, 0, 0, 0, 0, DateTimeKind.Utc), new Guid("a0000000-0000-7000-8000-000000000000"), null, null, "Standard registered user access.", "User", null, null },
+                    { new Guid("77777777-7777-7777-8777-777777777777"), new DateTime(2025, 10, 15, 0, 0, 0, 0, DateTimeKind.Utc), new Guid("a0000000-0000-7000-8000-000000000000"), null, null, "Creates and manages their own requests.", "Doctor", null, null }
                 });
 
             migrationBuilder.InsertData(
                 table: "Users",
-                columns: new[] { "Id", "CreatedAt", "CreatedBy", "Email", "FirstName", "IsActive", "IsDeleted", "IsVerified", "LastName", "PasswordHash", "SecurityStamp", "UpdatedAt", "UpdatedBy", "Username" },
+                columns: new[] { "Id", "CreatedAt", "CreatedBy", "DeletedAt", "DeletedBy", "Email", "FirstName", "IsActive", "IsVerified", "LastName", "PasswordHash", "SecurityStamp", "UpdatedAt", "UpdatedBy", "Username" },
                 values: new object[,]
                 {
-                    { new Guid("11111111-1111-7111-8111-111111111111"), new DateTime(2025, 10, 15, 0, 0, 0, 0, DateTimeKind.Utc), new Guid("a0000000-0000-7000-8000-000000000000"), "aawwad172@gmail.com", "Initial", true, false, true, "Admin", "5658A3510D0C8BA1DFD6AF62A44E06736E0B8E43B25464887D6007E5688C7270-7F8784D082093474FEED885A5F977C20", "10/15/2025 00:00:00", null, null, "admin" },
-                    { new Guid("a0000000-0000-7000-8000-000000000000"), new DateTime(2025, 10, 15, 0, 0, 0, 0, DateTimeKind.Utc), new Guid("a0000000-0000-7000-8000-000000000000"), "system@example.com", "system", true, false, true, "system", "C70A4E72A68BFBAD78B7D4186D7BABE668E9D29B728F208513BF00F08A789E4E-5BBDF5344D620DBC46984385FE5C9302", "10/15/2025 00:00:00", null, null, "system" }
+                    { new Guid("11111111-1111-7111-8111-111111111111"), new DateTime(2025, 10, 15, 0, 0, 0, 0, DateTimeKind.Utc), new Guid("a0000000-0000-7000-8000-000000000000"), null, null, "aawwad172@gmail.com", "Initial", true, true, "Admin", "5658A3510D0C8BA1DFD6AF62A44E06736E0B8E43B25464887D6007E5688C7270-7F8784D082093474FEED885A5F977C20", "0199ecd4-f5b6-7211-9ec7-ce26d0966b72", null, null, "admin" },
+                    { new Guid("a0000000-0000-7000-8000-000000000000"), new DateTime(2025, 10, 15, 0, 0, 0, 0, DateTimeKind.Utc), new Guid("a0000000-0000-7000-8000-000000000000"), null, null, "system@example.com", "system", true, true, "system", "C70A4E72A68BFBAD78B7D4186D7BABE668E9D29B728F208513BF00F08A789E4E-5BBDF5344D620DBC46984385FE5C9302", "0199ecd3-b844-792f-8f83-431df66c629d", null, null, "system" }
                 });
 
             migrationBuilder.InsertData(
@@ -185,11 +196,14 @@ namespace ManteqTask.Infrastructure.Migrations
                 columns: new[] { "PermissionId", "RoleId" },
                 values: new object[,]
                 {
-                    { new Guid("55555555-5555-7555-8555-555555555555"), new Guid("22222222-2222-7222-8222-222222222222") },
-                    { new Guid("55555555-5555-7555-8555-555555555555"), new Guid("33333333-3333-7333-8333-333333333333") },
-                    { new Guid("55555555-5555-7555-8555-555555555555"), new Guid("44444444-4444-7444-8444-444444444444") },
-                    { new Guid("66666666-6666-7666-8666-666666666666"), new Guid("22222222-2222-7222-8222-222222222222") },
-                    { new Guid("66666666-6666-7666-8666-666666666666"), new Guid("33333333-3333-7333-8333-333333333333") }
+                    { new Guid("88888888-8888-7888-8888-888888888888"), new Guid("77777777-7777-7777-8777-777777777777") },
+                    { new Guid("99999999-9999-7999-8999-999999999999"), new Guid("77777777-7777-7777-8777-777777777777") },
+                    { new Guid("aaaaaaaa-aaaa-7aaa-8aaa-aaaaaaaaaaaa"), new Guid("77777777-7777-7777-8777-777777777777") },
+                    { new Guid("bbbbbbbb-bbbb-7bbb-8bbb-bbbbbbbbbbbb"), new Guid("77777777-7777-7777-8777-777777777777") },
+                    { new Guid("cccccccc-cccc-7ccc-8ccc-cccccccccccc"), new Guid("33333333-3333-7333-8333-333333333333") },
+                    { new Guid("dddddddd-dddd-7ddd-8ddd-dddddddddddd"), new Guid("33333333-3333-7333-8333-333333333333") },
+                    { new Guid("eeeeeeee-eeee-7eee-8eee-eeeeeeeeeeee"), new Guid("33333333-3333-7333-8333-333333333333") },
+                    { new Guid("ffffffff-ffff-7fff-8fff-ffffffffffff"), new Guid("33333333-3333-7333-8333-333333333333") }
                 });
 
             migrationBuilder.InsertData(

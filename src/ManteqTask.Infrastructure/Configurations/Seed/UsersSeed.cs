@@ -25,7 +25,6 @@ public class UsersSeed(IConfiguration configuration) : IEntityTypeConfiguration<
                     SecurityStamp = AuthSeedConstants.SystemSecurityStampGuid,
                     IsActive = true,
                     IsVerified = true,
-                    IsDeleted = false,
                     // Auditing: System created by System
                     CreatedAt = AuthSeedConstants.SeedDateUtc,
                     CreatedBy = AuthSeedConstants.SystemUserId,
@@ -40,7 +39,6 @@ public class UsersSeed(IConfiguration configuration) : IEntityTypeConfiguration<
                     SecurityStamp = AuthSeedConstants.AdminSecurityStampGuid,
                     IsActive = true,
                     IsVerified = true,
-                    IsDeleted = false,
                     CreatedAt = AuthSeedConstants.SeedDateUtc,
                     CreatedBy = AuthSeedConstants.SystemUserId,
                 }

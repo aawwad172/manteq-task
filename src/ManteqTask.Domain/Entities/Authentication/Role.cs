@@ -17,5 +17,6 @@ public class Role : IBaseEntity
     public Guid CreatedBy { get; init; }
     public DateTime? UpdatedAt { get; set; }
     public Guid? UpdatedBy { get; set; }
-    public bool IsDeleted { get; set; }
+    public DateTime? DeletedAt { get; set; }
+    public Guid? DeletedBy { get; set; }
 }

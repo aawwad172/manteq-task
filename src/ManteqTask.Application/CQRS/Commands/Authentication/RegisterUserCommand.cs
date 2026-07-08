@@ -86,7 +86,6 @@ internal sealed class RegisterUserCommandHandler(
             CreatedBy = Guid.Empty,
             UpdatedBy = Guid.Empty,
             IsActive = false,
-            IsDeleted = false,
             IsVerified = false,
             SecurityStamp = securityStamp,
         };

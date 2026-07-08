@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ManteqTask.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251016075417_Initial-Migration")]
+    [Migration("20260708000601_Initial-Migration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -20,7 +20,7 @@ namespace ManteqTask.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.3")
+                .HasAnnotation("ProductVersion", "10.0.1")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -37,12 +37,15 @@ namespace ManteqTask.Infrastructure.Migrations
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Description")
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -65,20 +68,67 @@ namespace ManteqTask.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("55555555-5555-7555-8555-555555555555"),
+                            Id = new Guid("88888888-8888-7888-8888-888888888888"),
                             CreatedAt = new DateTime(2025, 10, 15, 0, 0, 0, 0, DateTimeKind.Utc),
                             CreatedBy = new Guid("a0000000-0000-7000-8000-000000000000"),
-                            Description = "some description",
-                            IsDeleted = false,
-                            Name = "User.Read"
+                            Description = "Create a Draft request",
+                            Name = "requests.create"
                         },
                         new
                         {
-                            Id = new Guid("66666666-6666-7666-8666-666666666666"),
+                            Id = new Guid("99999999-9999-7999-8999-999999999999"),
                             CreatedAt = new DateTime(2025, 10, 15, 0, 0, 0, 0, DateTimeKind.Utc),
                             CreatedBy = new Guid("a0000000-0000-7000-8000-000000000000"),
-                            IsDeleted = false,
-                            Name = "Post.Approve"
+                            Description = "Edit a Draft request",
+                            Name = "requests.edit"
+                        },
+                        new
+                        {
+                            Id = new Guid("aaaaaaaa-aaaa-7aaa-8aaa-aaaaaaaaaaaa"),
+                            CreatedAt = new DateTime(2025, 10, 15, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = new Guid("a0000000-0000-7000-8000-000000000000"),
+                            Description = "Submit a Draft for review",
+                            Name = "requests.submit"
+                        },
+                        new
+                        {
+                            Id = new Guid("bbbbbbbb-bbbb-7bbb-8bbb-bbbbbbbbbbbb"),
+                            CreatedAt = new DateTime(2025, 10, 15, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = new Guid("a0000000-0000-7000-8000-000000000000"),
+                            Description = "View only the user's own requests",
+                            Name = "requests.view.own"
+                        },
+                        new
+                        {
+                            Id = new Guid("cccccccc-cccc-7ccc-8ccc-cccccccccccc"),
+                            CreatedAt = new DateTime(2025, 10, 15, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = new Guid("a0000000-0000-7000-8000-000000000000"),
+                            Description = "View all requests (with status/date filters)",
+                            Name = "requests.view.all"
+                        },
+                        new
+                        {
+                            Id = new Guid("dddddddd-dddd-7ddd-8ddd-dddddddddddd"),
+                            CreatedAt = new DateTime(2025, 10, 15, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = new Guid("a0000000-0000-7000-8000-000000000000"),
+                            Description = "Approve a Submitted request",
+                            Name = "requests.approve"
+                        },
+                        new
+                        {
+                            Id = new Guid("eeeeeeee-eeee-7eee-8eee-eeeeeeeeeeee"),
+                            CreatedAt = new DateTime(2025, 10, 15, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = new Guid("a0000000-0000-7000-8000-000000000000"),
+                            Description = "Reject a Submitted request (reason required)",
+                            Name = "requests.reject"
+                        },
+                        new
+                        {
+                            Id = new Guid("ffffffff-ffff-7fff-8fff-ffffffffffff"),
+                            CreatedAt = new DateTime(2025, 10, 15, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = new Guid("a0000000-0000-7000-8000-000000000000"),
+                            Description = "View the status-change audit trail",
+                            Name = "audit.view"
                         });
                 });
 
@@ -150,12 +200,15 @@ namespace ManteqTask.Infrastructure.Migrations
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Description")
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -182,7 +235,6 @@ namespace ManteqTask.Infrastructure.Migrations
                             CreatedAt = new DateTime(2025, 10, 15, 0, 0, 0, 0, DateTimeKind.Utc),
                             CreatedBy = new Guid("a0000000-0000-7000-8000-000000000000"),
                             Description = "Full unrestricted access.",
-                            IsDeleted = false,
                             Name = "SuperAdmin"
                         },
                         new
@@ -191,7 +243,6 @@ namespace ManteqTask.Infrastructure.Migrations
                             CreatedAt = new DateTime(2025, 10, 15, 0, 0, 0, 0, DateTimeKind.Utc),
                             CreatedBy = new Guid("a0000000-0000-7000-8000-000000000000"),
                             Description = "General administrative access.",
-                            IsDeleted = false,
                             Name = "Admin"
                         },
                         new
@@ -200,8 +251,15 @@ namespace ManteqTask.Infrastructure.Migrations
                             CreatedAt = new DateTime(2025, 10, 15, 0, 0, 0, 0, DateTimeKind.Utc),
                             CreatedBy = new Guid("a0000000-0000-7000-8000-000000000000"),
                             Description = "Standard registered user access.",
-                            IsDeleted = false,
                             Name = "User"
+                        },
+                        new
+                        {
+                            Id = new Guid("77777777-7777-7777-8777-777777777777"),
+                            CreatedAt = new DateTime(2025, 10, 15, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = new Guid("a0000000-0000-7000-8000-000000000000"),
+                            Description = "Creates and manages their own requests.",
+                            Name = "Doctor"
                         });
                 });
 
@@ -227,28 +285,43 @@ namespace ManteqTask.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            PermissionId = new Guid("55555555-5555-7555-8555-555555555555"),
-                            RoleId = new Guid("22222222-2222-7222-8222-222222222222")
+                            PermissionId = new Guid("88888888-8888-7888-8888-888888888888"),
+                            RoleId = new Guid("77777777-7777-7777-8777-777777777777")
                         },
                         new
                         {
-                            PermissionId = new Guid("66666666-6666-7666-8666-666666666666"),
-                            RoleId = new Guid("22222222-2222-7222-8222-222222222222")
+                            PermissionId = new Guid("99999999-9999-7999-8999-999999999999"),
+                            RoleId = new Guid("77777777-7777-7777-8777-777777777777")
                         },
                         new
                         {
-                            PermissionId = new Guid("66666666-6666-7666-8666-666666666666"),
+                            PermissionId = new Guid("aaaaaaaa-aaaa-7aaa-8aaa-aaaaaaaaaaaa"),
+                            RoleId = new Guid("77777777-7777-7777-8777-777777777777")
+                        },
+                        new
+                        {
+                            PermissionId = new Guid("bbbbbbbb-bbbb-7bbb-8bbb-bbbbbbbbbbbb"),
+                            RoleId = new Guid("77777777-7777-7777-8777-777777777777")
+                        },
+                        new
+                        {
+                            PermissionId = new Guid("cccccccc-cccc-7ccc-8ccc-cccccccccccc"),
                             RoleId = new Guid("33333333-3333-7333-8333-333333333333")
                         },
                         new
                         {
-                            PermissionId = new Guid("55555555-5555-7555-8555-555555555555"),
+                            PermissionId = new Guid("dddddddd-dddd-7ddd-8ddd-dddddddddddd"),
                             RoleId = new Guid("33333333-3333-7333-8333-333333333333")
                         },
                         new
                         {
-                            PermissionId = new Guid("55555555-5555-7555-8555-555555555555"),
-                            RoleId = new Guid("44444444-4444-7444-8444-444444444444")
+                            PermissionId = new Guid("eeeeeeee-eeee-7eee-8eee-eeeeeeeeeeee"),
+                            RoleId = new Guid("33333333-3333-7333-8333-333333333333")
+                        },
+                        new
+                        {
+                            PermissionId = new Guid("ffffffff-ffff-7fff-8fff-ffffffffffff"),
+                            RoleId = new Guid("33333333-3333-7333-8333-333333333333")
                         });
                 });
 
@@ -288,6 +361,12 @@ namespace ManteqTask.Infrastructure.Migrations
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(256)
@@ -302,9 +381,6 @@ namespace ManteqTask.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
                         .HasDefaultValue(true);
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsVerified")
                         .HasColumnType("boolean");
@@ -354,11 +430,10 @@ namespace ManteqTask.Infrastructure.Migrations
                             Email = "system@example.com",
                             FirstName = "system",
                             IsActive = true,
-                            IsDeleted = false,
                             IsVerified = true,
                             LastName = "system",
                             PasswordHash = "C70A4E72A68BFBAD78B7D4186D7BABE668E9D29B728F208513BF00F08A789E4E-5BBDF5344D620DBC46984385FE5C9302",
-                            SecurityStamp = "10/15/2025 00:00:00",
+                            SecurityStamp = "0199ecd3-b844-792f-8f83-431df66c629d",
                             Username = "system"
                         },
                         new
@@ -369,11 +444,10 @@ namespace ManteqTask.Infrastructure.Migrations
                             Email = "aawwad172@gmail.com",
                             FirstName = "Initial",
                             IsActive = true,
-                            IsDeleted = false,
                             IsVerified = true,
                             LastName = "Admin",
                             PasswordHash = "5658A3510D0C8BA1DFD6AF62A44E06736E0B8E43B25464887D6007E5688C7270-7F8784D082093474FEED885A5F977C20",
-                            SecurityStamp = "10/15/2025 00:00:00",
+                            SecurityStamp = "0199ecd4-f5b6-7211-9ec7-ce26d0966b72",
                             Username = "admin"
                         });
                 });

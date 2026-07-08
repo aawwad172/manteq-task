@@ -11,44 +11,51 @@ public class RolesPermissionsSeed : IEntityTypeConfiguration<RolePermission>
     {
         builder.HasData([
             // -----------------------------------------------------------------------------------
-            // 1. SuperAdmin (The system doesn't strictly need these, but it's good practice)
-            //    We link SA to all initial permissions.
+            // 1. Doctor Role Permissions
             // -----------------------------------------------------------------------------------
             new RolePermission
             {
-                RoleId = AuthSeedConstants.RoleIdSuperAdmin,
-                PermissionId = AuthSeedConstants.PermissionIdUserRead
+                RoleId = AuthSeedConstants.RoleIdDoctor,
+                PermissionId = AuthSeedConstants.PermissionIdRequestsCreate
             },
             new RolePermission
             {
-                RoleId = AuthSeedConstants.RoleIdSuperAdmin,
-                PermissionId = AuthSeedConstants.PermissionIdPostApprove
+                RoleId = AuthSeedConstants.RoleIdDoctor,
+                PermissionId = AuthSeedConstants.PermissionIdRequestsEdit
             },
-
-            // -----------------------------------------------------------------------------------
-            // 2. Admin Role Permissions
-            // -----------------------------------------------------------------------------------
-            // Admin can approve posts
             new RolePermission
             {
-                RoleId = AuthSeedConstants.RoleIdAdmin,
-                PermissionId = AuthSeedConstants.PermissionIdPostApprove
+                RoleId = AuthSeedConstants.RoleIdDoctor,
+                PermissionId = AuthSeedConstants.PermissionIdRequestsSubmit
             },
-            // Admin can read all user accounts
             new RolePermission
             {
-                RoleId = AuthSeedConstants.RoleIdAdmin,
-                PermissionId = AuthSeedConstants.PermissionIdUserRead
+                RoleId = AuthSeedConstants.RoleIdDoctor,
+                PermissionId = AuthSeedConstants.PermissionIdRequestsViewOwn
             },
 
             // -----------------------------------------------------------------------------------
-            // 3. Standard User Role Permissions
+            // 2. Admin Role Permissions (request workflow)
             // -----------------------------------------------------------------------------------
-            // User can read their own profile (User.Read is often filtered by the service layer later)
             new RolePermission
             {
-                RoleId = AuthSeedConstants.RoleIdUser,
-                PermissionId = AuthSeedConstants.PermissionIdUserRead
+                RoleId = AuthSeedConstants.RoleIdAdmin,
+                PermissionId = AuthSeedConstants.PermissionIdRequestsViewAll
+            },
+            new RolePermission
+            {
+                RoleId = AuthSeedConstants.RoleIdAdmin,
+                PermissionId = AuthSeedConstants.PermissionIdRequestsApprove
+            },
+            new RolePermission
+            {
+                RoleId = AuthSeedConstants.RoleIdAdmin,
+                PermissionId = AuthSeedConstants.PermissionIdRequestsReject
+            },
+            new RolePermission
+            {
+                RoleId = AuthSeedConstants.RoleIdAdmin,
+                PermissionId = AuthSeedConstants.PermissionIdAuditView
             }
         ]);
     }

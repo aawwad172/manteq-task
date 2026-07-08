@@ -33,6 +33,14 @@ public class RolesSeed : IEntityTypeConfiguration<Role>
                 Description = "Standard registered user access.",
                 CreatedAt = AuthSeedConstants.SeedDateUtc,
                 CreatedBy = AuthSeedConstants.SystemUserId
+            },
+            new Role
+            {
+                Id = AuthSeedConstants.RoleIdDoctor,
+                Name = "Doctor",
+                Description = "Creates and manages their own requests.",
+                CreatedAt = AuthSeedConstants.SeedDateUtc,
+                CreatedBy = AuthSeedConstants.SystemUserId
             }
         ]);
     }

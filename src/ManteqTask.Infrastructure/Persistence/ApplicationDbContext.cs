@@ -118,8 +118,8 @@ public class ApplicationDbContext(
     // Making it static avoids potential closure capture issues with the DbContext instance.
     private static void SetSoftDeleteFilter<TEntity>(ModelBuilder modelBuilder) where TEntity : class, ISoftDelete
     {
-        // The filter expression: entity.IsDeleted == false
+        // The filter expression: entity.DeletedAt == null (i.e. not soft-deleted)
         modelBuilder.Entity<TEntity>().HasQueryFilter(
-            e => !EF.Property<bool>(e, nameof(ISoftDelete.IsDeleted)));
+            e => EF.Property<DateTime?>(e, nameof(ISoftDelete.DeletedAt)) == null);
     }
 }

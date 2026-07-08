@@ -39,7 +39,7 @@ internal sealed class LoginCommandHandler(
         if (user.IsActive is false)
             return Error.NotActiveUser($"User {user.Id} is not active");
 
-        if (user.IsDeleted is true)
+        if (user.DeletedAt is not null)
             return Error.DeletedUser($"User {user.Id} is deleted");
 
         if (!_securityService.VerifySecret(

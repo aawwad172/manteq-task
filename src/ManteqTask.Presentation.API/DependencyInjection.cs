@@ -59,21 +59,30 @@ public static class DependencyInjection
             };
         });
 
+        // One policy per permission. Policy name == permission claim value, so endpoints can
+        // guard with e.g. .RequireAuthorization(PermissionConstants.Requests.Create).
+        string[] permissions =
+        [
+            PermissionConstants.Requests.Create,
+            PermissionConstants.Requests.Edit,
+            PermissionConstants.Requests.Submit,
+            PermissionConstants.Requests.ViewOwn,
+            PermissionConstants.Requests.ViewAll,
+            PermissionConstants.Requests.Approve,
+            PermissionConstants.Requests.Reject,
+            PermissionConstants.Audit.View,
+        ];
+
         services.AddAuthorization(options =>
         {
-            // 1. Policy for creating a post (e.g., for /posts endpoint)
-            options.AddPolicy("PostApprove", policy =>
+            foreach (string permission in permissions)
             {
-                policy.RequireAuthenticatedUser();
-                policy.RequireClaim(CustomClaims.Permission, PermissionConstants.PostApprove);
-            });
-
-            // 2. Policy for managing users (e.g., for /users/ endpoint)
-            options.AddPolicy("UserRead", policy =>
-            {
-                policy.RequireAuthenticatedUser();
-                policy.RequireClaim(CustomClaims.Permission, PermissionConstants.UserRead);
-            });
+                options.AddPolicy(permission, policy =>
+                {
+                    policy.RequireAuthenticatedUser();
+                    policy.RequireClaim(CustomClaims.Permission, permission);
+                });
+            }
         });
 
         return services;

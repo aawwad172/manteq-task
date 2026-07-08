@@ -25,12 +25,33 @@ public static class AuthSeedConstants
     // Role ID: Standard User
     public static readonly Guid RoleIdUser = new("44444444-4444-7444-8444-444444444444");
 
-    // --- Initial Permissions (Examples) ---
-    // Permission ID: User.Read
-    public static readonly Guid PermissionIdUserRead = new("55555555-5555-7555-8555-555555555555");
+    // Role ID: Doctor
+    public static readonly Guid RoleIdDoctor = new("77777777-7777-7777-8777-777777777777");
 
-    // Permission ID: Post.Approve
-    public static readonly Guid PermissionIdPostApprove = new("66666666-6666-7666-8666-666666666666");
+    // --- Request workflow permissions ---
+    // Permission ID: requests.create
+    public static readonly Guid PermissionIdRequestsCreate = new("88888888-8888-7888-8888-888888888888");
+
+    // Permission ID: requests.edit
+    public static readonly Guid PermissionIdRequestsEdit = new("99999999-9999-7999-8999-999999999999");
+
+    // Permission ID: requests.submit
+    public static readonly Guid PermissionIdRequestsSubmit = new("aaaaaaaa-aaaa-7aaa-8aaa-aaaaaaaaaaaa");
+
+    // Permission ID: requests.view.own
+    public static readonly Guid PermissionIdRequestsViewOwn = new("bbbbbbbb-bbbb-7bbb-8bbb-bbbbbbbbbbbb");
+
+    // Permission ID: requests.view.all
+    public static readonly Guid PermissionIdRequestsViewAll = new("cccccccc-cccc-7ccc-8ccc-cccccccccccc");
+
+    // Permission ID: requests.approve
+    public static readonly Guid PermissionIdRequestsApprove = new("dddddddd-dddd-7ddd-8ddd-dddddddddddd");
+
+    // Permission ID: requests.reject
+    public static readonly Guid PermissionIdRequestsReject = new("eeeeeeee-eeee-7eee-8eee-eeeeeeeeeeee");
+
+    // Permission ID: audit.view
+    public static readonly Guid PermissionIdAuditView = new("ffffffff-ffff-7fff-8fff-ffffffffffff");
 
     public static readonly DateTime SeedDateUtc = new(2025, 10, 15, 0, 0, 0, DateTimeKind.Utc);
 
