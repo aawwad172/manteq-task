@@ -10,6 +10,7 @@ using ManteqTask.Presentation.API.Models;
 using ManteqTask.Presentation.API.Routes.Authentication;
 using ManteqTask.Presentation.API.Routes.Requests;
 using ManteqTask.Application.CQRS.Commands.Requests;
+using ManteqTask.Domain.Entities;
 using ManteqTask.Domain.Enums;
 
 using RefreshToken = ManteqTask.Presentation.API.Routes.Authentication.RefreshToken;
@@ -103,6 +104,12 @@ app.MapPost("/users/logout", Logout.RegisterRoute)
 #endregion
 
 #region Requests
+
+app.MapGet("/api/requests", ListRequests.RegisterRoute)
+    .WithTags("Requests")
+    .RequireAuthorization()
+   .Produces<ApiResponse<PaginationResult<RequestResult>>>(StatusCodes.Status200OK, "application/json")
+   .Produces(StatusCodes.Status401Unauthorized);
 
 app.MapPost("/api/requests", CreateRequest.RegisterRoute)
     .WithTags("Requests")

@@ -12,11 +12,12 @@ public static class QueryableExtensions
     {
         int totalRecords = await query.CountAsync();
 
-        if (pageSize is not null)
-            query = query.Take((int)pageSize);
+        int number = pageNumber is > 0 ? pageNumber.Value : 1;
+        int size = pageSize is > 0 ? pageSize.Value : totalRecords;
 
-        if (pageNumber is not null)
-            query = query.Skip(pageSize ?? 0 * ((int)pageNumber - 1));
+        // Page at the database level (OFFSET/LIMIT). When no page size is supplied, return everything.
+        if (pageSize is not null)
+            query = query.Skip((number - 1) * size).Take(size);
 
         List<T> result = await query.ToListAsync();
 
@@ -24,7 +25,9 @@ public static class QueryableExtensions
         {
             Page = result,
             TotalRecords = totalRecords,
-            TotalDisplayRecords = result.Count
+            TotalDisplayRecords = result.Count,
+            PageNumber = number,
+            PageSize = pageSize is not null ? size : totalRecords
         };
     }
 }
