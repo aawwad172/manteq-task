@@ -1,4 +1,3 @@
-
 using ManteqTask.Domain.Entities.Authentication;
 using ManteqTask.Domain.Interfaces.Domain.Auditing;
 namespace ManteqTask.Domain.Entities;

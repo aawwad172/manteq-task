@@ -1,9 +1,11 @@
 ﻿using ManteqTask.Application.Services;
 using ManteqTask.Application.Utilities;
 using ManteqTask.Domain.Interfaces.Application.Services;
+using ManteqTask.Domain.Interfaces.Infrastructure;
 using ManteqTask.Domain.Interfaces.Infrastructure.IRepositories;
 using ManteqTask.Infrastructure.Persistence;
 using ManteqTask.Infrastructure.Persistence.Repositories;
+using ManteqTask.Infrastructure.Services;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -17,7 +19,9 @@ public static class DependencyInjection
     {
         string connectionString = configuration.GetRequiredSetting("ConnectionStrings:DbConnectionString");
 
-        services.AddDbContext<ApplicationDbContext>((IServiceProvider provider, DbContextOptionsBuilder options) => options.UseNpgsql(connectionString));
+        services.AddDbContext<ApplicationDbContext>((IServiceProvider provider, DbContextOptionsBuilder options) =>
+            options.UseNpgsql(connectionString)
+                   .UseSnakeCaseNamingConvention());
         // Add your repositories like this here
         // services.AddScoped<IRepository, Repository>();
 
@@ -28,6 +32,7 @@ public static class DependencyInjection
         services.AddScoped<IAuthenticationRepository, AuthenticationRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+        services.AddScoped<IRequestNumberGenerator, RequestNumberGenerator>();
         services.AddLogging();
 
         return services;

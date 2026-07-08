@@ -9,8 +9,6 @@ public class UserRoleConfiguration : IEntityTypeConfiguration<UserRole>
 {
     public void Configure(EntityTypeBuilder<UserRole> builder)
     {
-        builder.ToTable("UserRoles");
-
         // --- 1. Configure M:M Relationship: User <-> Role (via UserRole) ---
         builder.HasKey(ur => new { ur.UserId, ur.RoleId }); // Define Composite PK
 

@@ -9,8 +9,6 @@ public class RolePermissionConfiguration : IEntityTypeConfiguration<RolePermissi
 {
     public void Configure(EntityTypeBuilder<RolePermission> builder)
     {
-        builder.ToTable("RolePermissions");
-
         builder.HasKey(rp => new { rp.PermissionId, rp.RoleId });
 
         // Uniqueness: a Role cannot contain the same Permission twice
