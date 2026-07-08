@@ -131,6 +131,25 @@ app.MapPost("/api/requests/{id:guid}/submit", SubmitRequest.RegisterRoute)
    .Produces(StatusCodes.Status404NotFound)
    .Produces(StatusCodes.Status409Conflict);
 
+app.MapPost("/api/requests/{id:guid}/approve", ApproveRequest.RegisterRoute)
+    .WithTags("Requests")
+    .RequireAuthorization(PermissionConstants.Requests.Approve)
+   .Produces<ApiResponse<RequestResult>>(StatusCodes.Status200OK, "application/json")
+   .Produces(StatusCodes.Status403Forbidden)
+   .Produces(StatusCodes.Status404NotFound)
+   .Produces(StatusCodes.Status409Conflict)
+   .Accepts<ApproveRequestCommand>("application/json");
+
+app.MapPost("/api/requests/{id:guid}/reject", RejectRequest.RegisterRoute)
+    .WithTags("Requests")
+    .RequireAuthorization(PermissionConstants.Requests.Reject)
+   .Produces<ApiResponse<RequestResult>>(StatusCodes.Status200OK, "application/json")
+   .Produces<ApiResponse<IEnumerable<string>>>(StatusCodes.Status400BadRequest, "application/json")
+   .Produces(StatusCodes.Status403Forbidden)
+   .Produces(StatusCodes.Status404NotFound)
+   .Produces(StatusCodes.Status409Conflict)
+   .Accepts<RejectRequestCommand>("application/json");
+
 #endregion
 
 app.Run();
