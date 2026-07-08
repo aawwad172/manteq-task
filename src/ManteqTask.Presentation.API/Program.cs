@@ -8,6 +8,9 @@ using ManteqTask.Presentation.API;
 using ManteqTask.Presentation.API.Middlewares;
 using ManteqTask.Presentation.API.Models;
 using ManteqTask.Presentation.API.Routes.Authentication;
+using ManteqTask.Presentation.API.Routes.Requests;
+using ManteqTask.Application.CQRS.Commands.Requests;
+using ManteqTask.Domain.Enums;
 
 using RefreshToken = ManteqTask.Presentation.API.Routes.Authentication.RefreshToken;
 
@@ -96,6 +99,37 @@ app.MapPost("/users/logout", Logout.RegisterRoute)
    .Produces<ApiResponse<IEnumerable<string>>>(StatusCodes.Status400BadRequest, "application/json")
    .Produces<ApiResponse<LogoutCommandResult>>(StatusCodes.Status401Unauthorized, "application/json")
    .Accepts<LogoutCommand>("application/json");
+
+#endregion
+
+#region Requests
+
+app.MapPost("/api/requests", CreateRequest.RegisterRoute)
+    .WithTags("Requests")
+    .RequireAuthorization(PermissionConstants.Requests.Create)
+   .Produces<ApiResponse<RequestResult>>(StatusCodes.Status201Created, "application/json")
+   .Produces<ApiResponse<IEnumerable<string>>>(StatusCodes.Status400BadRequest, "application/json")
+   .Produces(StatusCodes.Status401Unauthorized)
+   .Produces(StatusCodes.Status403Forbidden)
+   .Accepts<CreateRequestCommand>("application/json");
+
+app.MapPut("/api/requests/{id:guid}", EditRequest.RegisterRoute)
+    .WithTags("Requests")
+    .RequireAuthorization(PermissionConstants.Requests.Edit)
+   .Produces<ApiResponse<RequestResult>>(StatusCodes.Status200OK, "application/json")
+   .Produces<ApiResponse<IEnumerable<string>>>(StatusCodes.Status400BadRequest, "application/json")
+   .Produces(StatusCodes.Status403Forbidden)
+   .Produces(StatusCodes.Status404NotFound)
+   .Produces(StatusCodes.Status409Conflict)
+   .Accepts<EditRequestCommand>("application/json");
+
+app.MapPost("/api/requests/{id:guid}/submit", SubmitRequest.RegisterRoute)
+    .WithTags("Requests")
+    .RequireAuthorization(PermissionConstants.Requests.Submit)
+   .Produces<ApiResponse<RequestResult>>(StatusCodes.Status200OK, "application/json")
+   .Produces(StatusCodes.Status403Forbidden)
+   .Produces(StatusCodes.Status404NotFound)
+   .Produces(StatusCodes.Status409Conflict);
 
 #endregion
 

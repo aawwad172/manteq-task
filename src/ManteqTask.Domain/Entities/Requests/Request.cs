@@ -1,9 +1,10 @@
 using ManteqTask.Domain.Enums;
+using ManteqTask.Domain.Interfaces.Domain;
 using ManteqTask.Domain.Interfaces.Domain.Auditing;
 
 namespace ManteqTask.Domain.Entities.Requests;
 
-public class Request : IAuditable
+public class Request : IEntity, IAuditable
 {
     public Guid Id { get; init; } = Guid.CreateVersion7();
 

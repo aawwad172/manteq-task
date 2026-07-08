@@ -4,6 +4,8 @@ using System.Text.Json;
 using ManteqTask.Domain.Exceptions;
 using ManteqTask.Presentation.API.Models;
 
+using Microsoft.EntityFrameworkCore;
+
 
 namespace ManteqTask.Presentation.API.Middlewares;
 
@@ -30,6 +32,12 @@ public class ExceptionHandlerMiddleware(RequestDelegate next, ILogger<ExceptionH
         {
             _logger.LogError("ValidationException occurred: {Message}", ex.Message);
             await HandleExceptionAsync(context, "VALIDATION_ERROR", ex.Message, StatusCodes.Status400BadRequest);
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            // Optimistic concurrency (xmin) lost the race — e.g. two concurrent submits.
+            _logger.LogWarning("Concurrency conflict occurred: {Message}", ex.Message);
+            await HandleExceptionAsync(context, "CONCURRENCY_CONFLICT", "The resource was modified concurrently. Please retry.", StatusCodes.Status409Conflict);
         }
         catch (Exception ex)
         {
