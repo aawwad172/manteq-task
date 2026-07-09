@@ -4,7 +4,7 @@ using ManteqTask.Application.Utilities;
 using ManteqTask.Domain;
 using ManteqTask.Infrastructure;
 using ManteqTask.Presentation.API;
-// using ManteqTask.Presentation.API.Configurations;
+using ManteqTask.Presentation.API.Configurations;
 using ManteqTask.Presentation.API.Middlewares;
 using ManteqTask.Presentation.API.Models;
 using ManteqTask.Presentation.API.Routes.Authentication;
@@ -23,7 +23,7 @@ builder.Services.AddHealthChecks()
 // Add services to the container.
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-// builder.Services.AddSwaggerAuth();
+builder.Services.AddSwaggerAuth();
 
 builder.Services.AddDomain()
                 .AddApplication()

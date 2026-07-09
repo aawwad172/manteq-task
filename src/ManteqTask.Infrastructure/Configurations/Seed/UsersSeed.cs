@@ -41,6 +41,19 @@ public class UsersSeed(IConfiguration configuration) : IEntityTypeConfiguration<
                     IsVerified = true,
                     CreatedAt = AuthSeedConstants.SeedDateUtc,
                     CreatedBy = AuthSeedConstants.SystemUserId,
+                },
+                new User {
+                    Id = AuthSeedConstants.DoctorUserId,
+                    FirstName = "Doctor",
+                    LastName = "User",
+                    Username = "doctor",
+                    Email = "doctor@example.com",
+                    PasswordHash = _configuration.GetRequiredSetting("Security:DoctorPasswordHash"),
+                    SecurityStamp = AuthSeedConstants.DoctorSecurityStampGuid,
+                    IsActive = true,
+                    IsVerified = true,
+                    CreatedAt = AuthSeedConstants.SeedDateUtc,
+                    CreatedBy = AuthSeedConstants.SystemUserId,
                 }
             ]
         );

@@ -12,9 +12,14 @@ public static class AuthSeedConstants
     // User ID: Initial Super Admin User
     public static readonly Guid InitialAdminUserId = new("11111111-1111-7111-8111-111111111111");
 
+    // User ID: Seeded Doctor (no admin CRUD exists to create users, so this is seeded)
+    public static readonly Guid DoctorUserId = new("d0000000-0000-7000-8000-000000000001");
+
     public static readonly string SystemSecurityStampGuid = "0199ecd3-b844-792f-8f83-431df66c629d";
 
     public static readonly string AdminSecurityStampGuid = "0199ecd4-f5b6-7211-9ec7-ce26d0966b72";
+
+    public static readonly string DoctorSecurityStampGuid = "0199ecd5-1111-7111-8111-111111111111";
     // --- Role IDs ---
     // Role ID: SuperAdmin
     public static readonly Guid RoleIdSuperAdmin = new("22222222-2222-7222-8222-222222222222");
