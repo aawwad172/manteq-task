@@ -1,6 +1,6 @@
 # Design Notes — Pre-Authorization Request Lite
 
-Concise record of the backend's domain model and the decisions behind it.
+Concise record of the domain model, the frontend, and the decisions behind them.
 
 ## Status flow
 
@@ -114,7 +114,43 @@ Permissions are fine-grained strings (`requests.create`, `requests.approve`, `au
   one terminal decision, so a dedicated table would add a join for no gain; the audit trail already
   preserves who/when/what changed.
 
+## Frontend
+
+Angular SPA (standalone components, `bootstrapApplication` + `app.config.ts`, no NgModules) under
+`frontend/`, with PrimeNG for all UI. Structure: `core/` (auth, guards, interceptor, models,
+services) and `features/` (auth/login, requests/list, requests/form, requests/detail); routes are
+lazy-loaded standalone components.
+
+- **Auth is JWT-in-the-token.** On login the access token is stored (localStorage) and decoded
+  client-side. A functional `HttpInterceptor` attaches it as a Bearer header, but **only** to the
+  configured API base URL so the token never leaks cross-origin. An `authGuard` protects the
+  authenticated area; a `permissionGuard` gates create/edit routes by the required permission claim.
+- **The token drives the UI, and the server re-checks everything.** The same `Permission` claims the
+  backend authorizes on are read from the JWT to show/hide controls — admin filters
+  (`requests.view.all`), Submit (`requests.submit`), Approve/Reject (`requests.approve` /
+  `requests.reject`). This is convenience only: the backend independently enforces permission,
+  ownership, and status, and its 403/404/409/400 responses surface as toasts.
+- **Row scope is never a frontend concern.** The list sends only filter params; the backend scopes
+  rows by role, so the same table renders "my requests" for a Doctor and "all requests" for an Admin.
+- **Server-side pagination.** The `p-table` is lazy — `first`/`rows` from the table map to the
+  backend's `PageNumber`/`PageSize`, and `totalRecords` comes from the response.
+
+### Frontend decisions & tradeoffs
+
+- **Login is email + password to `/users/login`.** The backend authenticates by email (there is no
+  `/api/auth/login` and no username login), so the UI matches the real contract rather than the
+  generic "username" wording.
+- **Detail has no GET-by-id to call.** The backend exposes no `GET /api/requests/{id}`, so the detail
+  and edit screens receive the row via router navigation `state` from the list, with a fallback that
+  scans the (role-scoped) list. A dedicated get-by-id endpoint would be cleaner if the API grows.
+- **Theme is the stock PrimeNG "Noir" preset via `definePreset`.** Aura/Lara/Nora all ship the same
+  emerald primary, so a real color change needs a token override; Noir (PrimeNG's own black/white
+  example) is applied with no hand-written component CSS. Dark/light follows the OS.
+- **Angular 21 + PrimeNG 21.** Pinned together (PrimeNG 21 targets Angular 21); `@primeng/themes` is
+  deprecated in favor of the maintained `@primeuix/themes`, which is what the theme imports use.
+
 ## Out of scope (intentionally)
 
 No NPHIES/FHIR integration, no multi-tenancy, no Docker packaging, and no refresh-token rotation
-flow beyond the basic issue/validate path. Focus is the request lifecycle, RBAC, and auditing.
+flow beyond the basic issue/validate path. On the frontend: no SSR and no automated tests. Focus is
+the request lifecycle, RBAC, and auditing.

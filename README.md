@@ -1,15 +1,28 @@
-# Pre-Authorization Request Lite API
+# Pre-Authorization Request Lite
 
-A backend service for managing medical **pre-authorization requests**. A Doctor drafts a
+A full-stack app for managing medical **pre-authorization requests**. A Doctor drafts a
 request for a procedure, submits it for review, and an Admin approves or rejects it. Every
 status change is recorded in a general-purpose audit trail.
 
-Built on .NET 10 with Clean Architecture (Domain / Application / Infrastructure / Presentation),
-CQRS via MediatR, EF Core + PostgreSQL, and JWT-based, permission-driven authorization.
+- **Backend** (`src/`): .NET 10, Clean Architecture (Domain / Application / Infrastructure /
+  Presentation), CQRS via MediatR, EF Core + PostgreSQL, JWT + permission-driven authorization.
+- **Frontend** (`frontend/`): Angular (standalone) + PrimeNG SPA.
+
+Both live in one git repository (monorepo); the Angular app is a top-level `frontend/` folder,
+separate from the .NET solution.
+
+```
+manteqtask.sln
+src/          # .NET backend (Domain / Application / Infrastructure / Presentation.API)
+tests/        # xUnit tests
+frontend/     # Angular + PrimeNG SPA
+```
 
 ---
 
 ## Tech stack
+
+### Backend
 
 | Concern | Choice |
 |---|---|
@@ -24,11 +37,22 @@ CQRS via MediatR, EF Core + PostgreSQL, and JWT-based, permission-driven authori
 | API docs | `Swashbuckle.AspNetCore` `10.1.0` / `Microsoft.OpenApi` `2.3.10` |
 | Tests | `xUnit` `2.9.2` + `FluentAssertions` `7.2.0` |
 
+### Frontend
+
+| Concern | Choice |
+|---|---|
+| Framework | Angular `21` (standalone components, `bootstrapApplication` + `app.config.ts`, no NgModules) |
+| UI | PrimeNG `21.1.9` + `@primeuix/themes` `2` + `primeicons` `7` |
+| Theme | PrimeNG **Noir** preset (`definePreset`), dark/light follows the OS |
+| HTTP/Auth | `HttpClient` functional interceptor (Bearer) + route guards |
+| Routing | Angular Router, lazy-loaded standalone routes |
+
 ## Prerequisites
 
 - **.NET SDK 10.0.101** (pinned in `global.json`)
 - **PostgreSQL** running and reachable
 - EF Core CLI — provided as a local tool (`dotnet-ef` `10.0.9`), restored below
+- **Node.js 22+** and npm (for the frontend)
 
 ---
 
@@ -83,6 +107,26 @@ Example connection string (placeholder):
   "DbConnectionString": "Host=<host>;Port=<port>;Database=<db>;Username=<user>;Password=<password>"
 }
 ```
+
+---
+
+## Run the frontend
+
+With the backend running (it allows the dev origin `http://localhost:4200` via CORS):
+
+```bash
+cd frontend
+npm install
+npm start          # ng serve -> http://localhost:4200
+```
+
+- App: `http://localhost:4200`
+- The backend base URL is set in `frontend/src/environments/environment.development.ts`
+  (`apiBaseUrl`, default `http://localhost:5184`).
+- Production build: `npm run build` (output in `frontend/dist/`). No SSR/Docker — plain `ng serve`.
+
+Log in with a seeded account (see below). The SPA stores the JWT, attaches it as a Bearer token
+on API calls, and shows/hides admin-only controls based on the permission claims in the token.
 
 ---
 
@@ -146,6 +190,16 @@ their own requests (`requests.view.own`), an Admin sees all (`requests.view.all`
 See **Swagger** (`/swagger`) for full request/response schemas. Design rationale lives in
 [DESIGN.md](DESIGN.md).
 
+### Frontend screens
+
+| Route | Screen | Notes |
+|---|---|---|
+| `/login` | Login | email + password → stores JWT |
+| `/requests` | List | server-side paginated table; admin-only status/date filters |
+| `/requests/new` | Create | guarded by `requests.create` |
+| `/requests/:id` | Detail | role/status-gated Submit / Approve / Reject (reject needs a reason) |
+| `/requests/:id/edit` | Edit | guarded by `requests.edit`; only a Draft is editable |
+
 ---
 
 ## Tests
@@ -159,3 +213,5 @@ the CQRS handlers against in-memory fakes and the FluentValidation validators di
 the request status transitions (Draft → Submitted → Approved/Rejected), illegal-transition
 conflicts, the ownership guard, and the input rules (reject reason length, positive cost,
 non-past procedure date).
+
+These are backend tests; the frontend has no automated tests in this scope.
