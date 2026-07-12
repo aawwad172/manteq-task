@@ -1,148 +1,161 @@
-# Dotnet Template
+# Pre-Authorization Request Lite API
 
-This is a .NET template built using Domain-Driven Design (DDD) with Clean Architecture. It is designed to help you quickly set up an application with the following layers and patterns:
+A backend service for managing medical **pre-authorization requests**. A Doctor drafts a
+request for a procedure, submits it for review, and an Admin approves or rejects it. Every
+status change is recorded in a general-purpose audit trail.
 
-- **Domain:** Contains your core business entities and logic.
-- **Application:** Houses use cases, CQRS command and query handlers, and application-specific services.
-- **Infrastructure:** Implements data access, repositories, UnitOfWork, and integration with external services (e.g., Postgres).
-- **Presentation:** Contains the Web API project, middleware (including JWT authentication, exception handling), and front-facing controllers.
+Built on .NET 10 with Clean Architecture (Domain / Application / Infrastructure / Presentation),
+CQRS via MediatR, EF Core + PostgreSQL, and JWT-based, permission-driven authorization.
 
-## Features
+---
 
-- **Clean Architecture with DDD:**  
-  Organizes your solution into Domain, Application, Infrastructure, and Presentation projects.
-  
-- **Dependency Injection:**  
-  DI is set up for each project, ensuring loose coupling and easier testing.
+## Tech stack
 
-- **CQRS and UnitOfWork:**  
-  Implements the CQRS pattern for separating commands and queries. Also includes a UnitOfWork pattern to manage transactions.
+| Concern | Choice |
+|---|---|
+| Runtime | .NET 10 (`net10.0`) |
+| Web | ASP.NET Core Minimal APIs (`Microsoft.NET.Sdk.Web`) |
+| Data | EF Core `10.0.1` + `Npgsql.EntityFrameworkCore.PostgreSQL` `10.0.0` |
+| Naming | `EFCore.NamingConventions` `10.0.1` (snake_case tables/columns) |
+| CQRS | `MediatR` `14.0.0` |
+| Validation | `FluentValidation` `11.11.0` |
+| Auth | `Microsoft.AspNetCore.Authentication.JwtBearer` `10.0.1` (HMAC-SHA256) |
+| Mapping | `Mapster` `7.4.0` |
+| API docs | `Swashbuckle.AspNetCore` `10.1.0` / `Microsoft.OpenApi` `2.3.10` |
+| Tests | `xUnit` `2.9.2` + `FluentAssertions` `7.2.0` |
 
-- **Repository Patterns:**  
-  - A **Generic Repository** is provided for general CRUD operations.
-  - For operations with specific needs, you can create a custom repository by inheriting from the generic repository and overriding the necessary methods.
+## Prerequisites
 
-- **JWT Middleware and Service:**  
-  Provides a built-in JWT middleware and a dedicated JWT service for handling authentication and authorization.  
-  **Important:** Make sure to change the variables in your `appsettings.json` (connection string, JWT secret, issuer, audience, and **EncryptionKey**) to match your own configuration.
+- **.NET SDK 10.0.101** (pinned in `global.json`)
+- **PostgreSQL** running and reachable
+- EF Core CLI — provided as a local tool (`dotnet-ef` `10.0.9`), restored below
 
-- **Postgres Integration:**  
-  The template is built on PostgreSQL. Connection strings and related configurations are set up accordingly.
+---
 
-- **Health Endpoint:**  
-  A health endpoint is available to check both the database connection and server health.
+## Run locally
 
-- **Husky for Pre-Commit Hooks:**  
-  Husky is configured to ensure code consistency before committing.  
-  **Note:** Install Husky via `npx` (e.g., `npx husky-init && npm install`) to activate pre-commit hooks for your .NET projects.
+```bash
+# 1. Restore packages and local tools (husky, dotnet-ef)
+dotnet restore
+dotnet tool restore
 
-- **Makefile for .NET CLI Tasks:**  
-  A Makefile is included for managing migrations (using EF Core), updating the database, running, and building the application.  
-  **Note:** The command to update the database has been renamed from `update-database` to `database-update` in the Makefile.
+# 2. Point the app at your PostgreSQL instance (see "Configuration" below)
 
-- **Exception Handling Middleware:**  
-  A global exception handling middleware is provided. Simply throw your exceptions and let the middleware handle them.  
-  In addition, you can use the `ApiResponse` class for consistent and clean API responses.
+# 3. Create the database schema + seed data
+make database-update
+#   equivalent to:
+#   dotnet ef database update \
+#     --project src/ManteqTask.Infrastructure \
+#     --startup-project src/ManteqTask.Presentation.API
 
-- **Fluent Validation:**  
-  This template uses Fluent Validation to handle exceptions and validation in a clean, separated manner. This ensures that your validation logic is decoupled from your controllers and business logic.
+# 4. Run the API (defaults to the Development profile)
+make run
+#   equivalent to: dotnet run --project src/ManteqTask.Presentation.API
+```
 
-- **Query Extension for Pagination:**  
-  The template includes a query extension that simplifies pagination in your queries.
+- API: `http://localhost:5184`
+- Swagger UI: `http://localhost:5184/swagger`
+- Health check: `http://localhost:5184/health`
+- An `https` launch profile is also available (`https://localhost:7144`).
 
-## Getting Started
+> Migrations and seeding read configuration (connection string + password hashes). Run EF
+> commands with the same environment the app uses — the default profile sets
+> `ASPNETCORE_ENVIRONMENT=Development`, which `appsettings.Development.json` fully populates.
 
-1. **Create Repository of this template:**
+### Configuration
 
-2. **Install Dependencies:**
+Settings live in `appsettings.json` (base, placeholders) and `appsettings.Development.json`.
+Do **not** commit real secrets. Key config keys:
 
-   - For Husky (pre-commit hooks), run:
-     ```bash
-     npx husky-init && npm install
-     ```
-   - Restore your .NET packages:
-     ```bash
-     dotnet restore
-     ```
-3. **Rename the Project**
+| Key | Purpose |
+|---|---|
+| `ConnectionStrings:DbConnectionString` | PostgreSQL connection string |
+| `Jwt:Issuer`, `Jwt:Audience` | Token issuer/audience |
+| `Jwt:JwtSecretKey` | HMAC signing key (**≥ 32 bytes**) |
+| `Jwt:AccessTokenExpirationMinutes`, `Jwt:RefreshTokenExpirationDays` | Token lifetimes |
+| `Security:EncryptionKey` | App encryption key |
+| `Security:SystemAdminPasswordHash`, `Security:InitialAdminPasswordHash`, `Security:DoctorPasswordHash` | Password hashes for the three seeded users |
 
-   - Use the Renaming Script using `Make`
-     ```make
-     make rename-project name="<project_name>"
-     ```
+Example connection string (placeholder):
 
-4. **Update Configuration:**
+```json
+"ConnectionStrings": {
+  "DbConnectionString": "Host=<host>;Port=<port>;Database=<db>;Username=<user>;Password=<password>"
+}
+```
 
-   - Open `appsettings.json` and `appsettings.Development.json`.
-   - Update the following configuration values:
-     - **Connection String:** Set your PostgreSQL connection string.
-       ```json
-       "ConnectionStrings": {
-         "DbConnectionString": "Server=your_server;Database=your_db;User Id=your_user;Password=your_password;"
-       }
-       ```
-     - **JWT Settings:** Update your JWT secret key, issuer, and audience.
-       ```json
-       "Jwt": {
-         "Key": "YourVerySecureSecretKey",
-         "Issuer": "yourdomain.com",
-         "Audience": "yourdomain.com"
-       }
-       ```
-       You can generate a JWT key from this [Website](https://jwtsecret.com/generate)
-       
-     - **Security Settings:**  
-       **Important:** Change the `EncryptionKey` to your own secure key.
-       ```json
-       "Security": {
-         "EncryptionKey": "YourUniqueEncryptionKeyHere",
-         "SystemAdminPassword": "YourSystemAdminPasswordHere"
-       }
-       ```
+---
 
-5. **Run the Application:**
+## First use / seeding
 
-   Use the Makefile to run migrations, update the database, or run the application. For example, to update the database:
-   ```bash
-   make database-update
-   ```
-   And to run the application:
-   ```bash
-   make run
-   ```
+There is **no runtime seeding and no auto-migration on startup**. Roles, permissions, and the
+initial users are seeded via EF Core `HasData` and applied when you run `make database-update`.
 
-## Architecture Overview
+**Seeded roles:** `SuperAdmin`, `Admin`, `User`, `Doctor`.
+**Seeded users** (login is by **email**):
 
-- **Domain:** Contains entities and business logic.
-- **Application:** Implements CQRS, UnitOfWork, and application services.  
-  The `IJwtService` interface is defined here for token generation/validation.
-- **Infrastructure:** Implements repositories, a generic repository, and data access via EF Core (Postgres).  
-  Uses DI for each component.
-- **Presentation:** Web API project containing middleware (JWT, exception handling) and controllers.
+| Username | Email | Role | Effective permissions |
+|---|---|---|---|
+| `admin` | `aawwad172@gmail.com` | SuperAdmin | **all** (SuperAdmin bypass) |
+| `doctor` | `doctor@example.com` | Doctor | create, edit, submit, view.own |
+| `system` | `system@example.com` | *(none)* | none |
 
-## Exception Handling & API Responses
+Passwords are stored as salted **hashes** in the `Security:*PasswordHash` keys — the plaintext
+is not in the repo. To log in as a seeded user, set the corresponding hash to a password you
+control (the app hashes secrets as a `HASH-SALT` string). Use `admin` for approve/reject and
+`doctor` for the create→submit flow.
 
-- **Exception Handling Middleware:**  
-  Automatically catches exceptions thrown during request processing and formats responses using the `ApiResponse` class.
-  
-- **ApiResponse Class:**  
-  Use this class in your controllers to return standardized responses.
+> Registering a brand-new user (`POST /users/register`) assigns the default `User` role and
+> creates the account **inactive**, so it cannot log in or hit request endpoints until activated
+> and granted a role. For the demo flow, use the seeded accounts.
 
-## Pagination
+### Getting a token
 
-- **Query Extension for Pagination:**  
-  A query extension is available to simplify pagination. Use it in your query handlers to easily implement paging functionality.
+```bash
+curl -X POST http://localhost:5184/users/login \
+  -H "Content-Type: application/json" \
+  -d '{ "email": "doctor@example.com", "password": "<password>" }'
+# -> { "data": { "accessToken": "<JWT>", "refreshToken": "..." } }
+```
 
-## Contributions & Feedback
+In Swagger, click **Authorize** and paste the `accessToken` (the `Bearer ` prefix is added
+automatically). The token carries the user's permissions as claims.
 
-Contributions, suggestions, and feedback are welcome!  
-If you have any ideas or improvements that could help enhance this template, don't hesitate to contribute or open an issue.
+---
 
-## Conclusion
+## API overview
 
-This template is designed to jumpstart your .NET application development using best practices like DDD, Clean Architecture, DI, UnitOfWork, CQRS, and more. Customize the configuration files, update the connection strings and JWT settings, and extend the provided features to suit your application's needs.
+All `/api/requests/*` endpoints require a JWT. Guards are per-permission (policy name == permission).
 
-Happy coding!
+| Method | Route | Permission | Body |
+|---|---|---|---|
+| POST | `/users/register` | anonymous | `FirstName, LastName, Email, Username, Password` |
+| POST | `/users/login` | anonymous | `Email, Password` |
+| POST | `/users/refresh-token` | authenticated | `RefreshToken` |
+| POST | `/users/logout` | authenticated | — |
+| GET | `/api/requests` | authenticated¹ | query: `Status, CreatedFrom, CreatedTo, ProcedureFrom, ProcedureTo, PageNumber, PageSize` |
+| POST | `/api/requests` | `requests.create` | `ProcedureName, ProcedureDate, EstimatedCost` |
+| PUT | `/api/requests/{id}` | `requests.edit` | `ProcedureName, ProcedureDate, EstimatedCost` |
+| POST | `/api/requests/{id}/submit` | `requests.submit` | — |
+| POST | `/api/requests/{id}/approve` | `requests.approve` | `Reason?` (optional) |
+| POST | `/api/requests/{id}/reject` | `requests.reject` | `Reason` (≥ 10 chars) |
 
-By Ahmad Awwad :)
+¹ List is open to any authenticated user; row scope is decided server-side — a Doctor sees only
+their own requests (`requests.view.own`), an Admin sees all (`requests.view.all`).
 
+See **Swagger** (`/swagger`) for full request/response schemas. Design rationale lives in
+[DESIGN.md](DESIGN.md).
+
+---
+
+## Tests
+
+```bash
+dotnet test
+```
+
+**No database required.** The suite (`tests/ManteqTask.Tests`, xUnit + FluentAssertions) exercises
+the CQRS handlers against in-memory fakes and the FluentValidation validators directly. It covers
+the request status transitions (Draft → Submitted → Approved/Rejected), illegal-transition
+conflicts, the ownership guard, and the input rules (reject reason length, positive cost,
+non-past procedure date).
