@@ -1,0 +1,62 @@
+<div class="form-wrap">
+  <p-card [header]="isEdit ? 'Edit request' : 'New request'">
+    <form [formGroup]="form" (ngSubmit)="submit()" class="request-form">
+      <div class="field">
+        <label for="procedureName">Procedure name</label>
+        <input pInputText id="procedureName" formControlName="procedureName" fluid />
+        @if (form.controls.procedureName.invalid && form.controls.procedureName.touched) {
+          <p-message severity="error" variant="simple" size="small" text="Procedure name is required." />
+        }
+      </div>
+
+      <div class="field">
+        <label for="procedureDate">Procedure date</label>
+        <p-datepicker
+          inputId="procedureDate"
+          formControlName="procedureDate"
+          dateFormat="yy-mm-dd"
+          [minDate]="today"
+          [showButtonBar]="true"
+          fluid
+        />
+        @if (form.controls.procedureDate.touched && form.controls.procedureDate.hasError('required')) {
+          <p-message severity="error" variant="simple" size="small" text="Procedure date is required." />
+        }
+        @if (form.controls.procedureDate.hasError('pastDate')) {
+          <p-message severity="error" variant="simple" size="small" text="Procedure date cannot be in the past." />
+        }
+      </div>
+
+      <div class="field">
+        <label for="estimatedCost">Estimated cost</label>
+        <p-inputnumber
+          inputId="estimatedCost"
+          formControlName="estimatedCost"
+          mode="decimal"
+          [minFractionDigits]="2"
+          [maxFractionDigits]="2"
+          [min]="0"
+          fluid
+        />
+        @if (form.controls.estimatedCost.invalid && form.controls.estimatedCost.touched) {
+          <p-message severity="error" variant="simple" size="small" text="Estimated cost must be greater than zero." />
+        }
+      </div>
+
+      <div class="actions">
+        <p-button
+          label="Cancel"
+          severity="secondary"
+          [outlined]="true"
+          routerLink="/requests"
+        />
+        <p-button
+          type="submit"
+          [label]="isEdit ? 'Save changes' : 'Create'"
+          icon="pi pi-check"
+          [loading]="saving()"
+        />
+      </div>
+    </form>
+  </p-card>
+</div>

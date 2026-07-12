@@ -1,0 +1,24 @@
+/* Layout only. */
+.login-wrap {
+  display: flex;
+  justify-content: center;
+  padding-top: 3rem;
+}
+
+.login-wrap :host,
+.login-card {
+  width: 100%;
+  max-width: 380px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}

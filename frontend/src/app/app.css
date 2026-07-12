@@ -1,0 +1,21 @@
+/* Minimal layout structure only — no PrimeNG theming or component restyling.
+   Colors reference the active Aura preset's design tokens rather than hard-coded values. */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.5rem;
+  border-bottom: 1px solid var(--p-content-border-color);
+}
+
+.app-brand {
+  font-weight: 600;
+  text-decoration: none;
+  color: inherit;
+}
+
+.app-main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}

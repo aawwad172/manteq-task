@@ -15,6 +15,8 @@ using ManteqTask.Domain.Enums;
 
 using RefreshToken = ManteqTask.Presentation.API.Routes.Authentication.RefreshToken;
 
+const string CorsPolicyName = "FrontendCors";
+
 WebApplicationBuilder? builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHealthChecks()
@@ -33,6 +35,20 @@ builder.Services.AddDomain()
 builder.Services.AddAuthentication();
 builder.Services.AddAuthorization();
 
+// CORS for the Angular dev frontend. Origins are configurable (Cors:AllowedOrigins); the default
+// is the ng serve URL. Bearer tokens are sent in the Authorization header (not cookies), so
+// AllowAnyHeader covers the preflight and credentials are not required.
+string[] allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+                          ?? ["http://localhost:4200"];
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(CorsPolicyName, policy =>
+        policy.WithOrigins(allowedOrigins)
+              .AllowAnyHeader()
+              .AllowAnyMethod());
+});
+
 WebApplication app = builder.Build();
 
 // Map health check endpoint
@@ -48,6 +64,8 @@ if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
         c.DocumentTitle = "Dotnet Template API";
     });
 }
+
+app.UseCors(CorsPolicyName);
 
 app.UseAuthentication();
 app.UseAuthorization();

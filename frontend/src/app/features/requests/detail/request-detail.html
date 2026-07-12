@@ -1,0 +1,105 @@
+@if (request(); as r) {
+  <div class="detail-wrap">
+    <p-card>
+      <ng-template #title>
+        <div class="detail-title">
+          <span>{{ r.requestNumber }}</span>
+          <p-tag [value]="r.status" [severity]="statusSeverity(r.status)" />
+        </div>
+      </ng-template>
+
+      <dl class="detail-grid">
+        <dt>Procedure</dt>
+        <dd>{{ r.procedureName }}</dd>
+
+        <dt>Procedure date</dt>
+        <dd>{{ r.procedureDate }}</dd>
+
+        <dt>Estimated cost</dt>
+        <dd>{{ r.estimatedCost | number: '1.2-2' }}</dd>
+
+        <dt>Created</dt>
+        <dd>{{ r.createdAt | date: 'medium' }}</dd>
+
+        @if (r.updatedAt) {
+          <dt>Updated</dt>
+          <dd>{{ r.updatedAt | date: 'medium' }}</dd>
+        }
+      </dl>
+
+      <ng-template #footer>
+        <div class="detail-actions">
+          <p-button label="Back" severity="secondary" [outlined]="true" routerLink="/requests" />
+          @if (canEdit()) {
+            <p-button label="Edit" icon="pi pi-pencil" [outlined]="true" (onClick)="editDraft()" />
+          }
+          @if (canSubmit()) {
+            <p-button label="Submit" icon="pi pi-send" [loading]="acting()" (onClick)="submit()" />
+          }
+          @if (canReject()) {
+            <p-button
+              label="Reject"
+              icon="pi pi-times"
+              severity="danger"
+              [outlined]="true"
+              [disabled]="acting()"
+              (onClick)="openReject()"
+            />
+          }
+          @if (canApprove()) {
+            <p-button
+              label="Approve"
+              icon="pi pi-check"
+              severity="success"
+              [loading]="acting()"
+              (onClick)="approve()"
+            />
+          }
+        </div>
+      </ng-template>
+    </p-card>
+  </div>
+}
+
+<p-dialog
+  header="Reject request"
+  [(visible)]="rejectDialogVisible"
+  [modal]="true"
+  [style]="{ width: '32rem' }"
+>
+  <form [formGroup]="rejectForm" (ngSubmit)="confirmReject()" class="reject-form">
+    <label for="reason">Reason for rejection</label>
+    <textarea
+      pTextarea
+      id="reason"
+      formControlName="reason"
+      rows="4"
+      placeholder="Explain why this request is being rejected (min 10 characters)."
+      fluid
+    ></textarea>
+    @if (rejectForm.controls.reason.touched && rejectForm.controls.reason.invalid) {
+      <p-message
+        severity="error"
+        variant="simple"
+        size="small"
+        text="A reason of at least 10 characters is required."
+      />
+    }
+  </form>
+
+  <ng-template #footer>
+    <p-button
+      label="Cancel"
+      severity="secondary"
+      [text]="true"
+      (onClick)="rejectDialogVisible = false"
+    />
+    <p-button
+      label="Reject"
+      severity="danger"
+      icon="pi pi-times"
+      [loading]="acting()"
+      (onClick)="confirmReject()"
+    />
+  </ng-template>
+</p-dialog>

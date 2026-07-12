@@ -1,0 +1,18 @@
+<p-toast />
+
+<header class="app-header">
+  <a routerLink="/requests" class="app-brand">Pre-Authorization</a>
+  @if (isAuthenticated()) {
+    <p-button
+      label="Logout"
+      icon="pi pi-sign-out"
+      severity="secondary"
+      [text]="true"
+      (onClick)="logout()"
+    />
+  }
+</header>
+
+<main class="app-main">
+  <router-outlet />
+</main>

@@ -1,0 +1,23 @@
+/* Layout only. */
+.form-wrap {
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.request-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
