@@ -11,6 +11,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- CQRS handlers are internal sealed; the test project instantiates them directly. -->
+    <InternalsVisibleTo Include="ManteqTask.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- CurrentUserService reads permission claims from the current HttpContext. -->
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>

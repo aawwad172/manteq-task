@@ -13,6 +13,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManteqTask.Application", "s
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManteqTask.Infrastructure", "src\ManteqTask.Infrastructure\ManteqTask.Infrastructure.csproj", "{515FFE38-A1FB-458B-B7AB-6557FC048342}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManteqTask.Tests", "tests\ManteqTask.Tests\ManteqTask.Tests.csproj", "{1BE3B4C1-36EF-4114-94A6-B1DDED55F9B6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +75,18 @@ Global
 		{515FFE38-A1FB-458B-B7AB-6557FC048342}.Release|x64.Build.0 = Release|Any CPU
 		{515FFE38-A1FB-458B-B7AB-6557FC048342}.Release|x86.ActiveCfg = Release|Any CPU
 		{515FFE38-A1FB-458B-B7AB-6557FC048342}.Release|x86.Build.0 = Release|Any CPU
+		{1BE3B4C1-36EF-4114-94A6-B1DDED55F9B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1BE3B4C1-36EF-4114-94A6-B1DDED55F9B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1BE3B4C1-36EF-4114-94A6-B1DDED55F9B6}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{1BE3B4C1-36EF-4114-94A6-B1DDED55F9B6}.Debug|x64.Build.0 = Debug|Any CPU
+		{1BE3B4C1-36EF-4114-94A6-B1DDED55F9B6}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1BE3B4C1-36EF-4114-94A6-B1DDED55F9B6}.Debug|x86.Build.0 = Debug|Any CPU
+		{1BE3B4C1-36EF-4114-94A6-B1DDED55F9B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1BE3B4C1-36EF-4114-94A6-B1DDED55F9B6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1BE3B4C1-36EF-4114-94A6-B1DDED55F9B6}.Release|x64.ActiveCfg = Release|Any CPU
+		{1BE3B4C1-36EF-4114-94A6-B1DDED55F9B6}.Release|x64.Build.0 = Release|Any CPU
+		{1BE3B4C1-36EF-4114-94A6-B1DDED55F9B6}.Release|x86.ActiveCfg = Release|Any CPU
+		{1BE3B4C1-36EF-4114-94A6-B1DDED55F9B6}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -80,5 +96,6 @@ Global
 		{E6A5CFE6-02A2-4166-9855-21A965712051} = {342EDB7A-ED24-4DD9-822C-9374321A8CC9}
 		{A4F22D76-1966-498A-8AF4-8BE3AC6A045C} = {342EDB7A-ED24-4DD9-822C-9374321A8CC9}
 		{515FFE38-A1FB-458B-B7AB-6557FC048342} = {342EDB7A-ED24-4DD9-822C-9374321A8CC9}
+		{1BE3B4C1-36EF-4114-94A6-B1DDED55F9B6} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 EndGlobal
